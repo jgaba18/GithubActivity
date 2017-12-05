@@ -78,7 +78,6 @@ public class GithubQuerier {
     private static List<JSONObject> getEvents(String user) throws IOException {
         List<JSONObject> eventList = new ArrayList<JSONObject>();
         int page = 1;
-        String token = "&access_token=a40d93e17cbbec8aa5bae52c4c3ea68e894c3ef1";
         String url = BASE_URL + user + "/events";
 
         JSONArray events = getEventPage(page, url);
