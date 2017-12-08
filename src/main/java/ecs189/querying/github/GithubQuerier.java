@@ -31,23 +31,25 @@ public class GithubQuerier {
         sb.append("<h1 class=\"heading\">");
         sb.append(heading);
 
+
+
         for (int i = 0; i < response.size(); i++) {
             JSONObject event = response.get(i);
             JSONObject payload = event.getJSONObject("payload");
             JSONArray commits = payload.getJSONArray("commits");
 
+
             int commitLen = commits.length();
             String [] commitsStr = new String[commitLen];
+            String [] commitMessage = new String[commitLen];
             int commitcurr = 0;
+
             while(commitcurr < commitLen){
                 JSONObject obj = commits.getJSONObject(commitcurr);
                 commitsStr[commitcurr] = obj.getString("sha");
+                commitMessage[commitcurr] = obj.getString("message");
                 commitcurr++;
             }
-
-            System.out.println("**************");
-            System.out.println(Arrays.toString(commitsStr));
-            System.out.println("**************");
 
 
             // Get created_at date, and format it in a more pleasant style
@@ -57,12 +59,22 @@ public class GithubQuerier {
             Date date = inFormat.parse(creationDate);
             String formatted = outFormat.format(date);
 
-
             // Add formatted date
             sb.append("<h3>");
             sb.append(" Date:   ");
             sb.append(formatted);
-            sb.append("< /h3>");
+            sb.append("</h3>");
+
+            for(int y = 0; y < commitsStr.length; y++){
+                sb.append("<h4>");
+                sb.append(String.format("%d) Commit SHA: ", y+1));
+                sb.append(commitsStr[y]);
+                sb.append("<h5>");
+                sb.append("Message: ");
+                sb.append(commitMessage[y]);
+                sb.append("</h5>");
+                sb.append("</h4>");
+            }
 
             //sb.append("<br />");
             // Add collapsible JSON textbox (don't worry about this for the homework; it's just a nice CSS thing I like)
@@ -78,6 +90,7 @@ public class GithubQuerier {
     private static List<JSONObject> getEvents(String user) throws IOException {
         List<JSONObject> eventList = new ArrayList<JSONObject>();
         int page = 1;
+        String token = "&access_token=a40d93e17cbbec8aa5bae52c4c3ea68e894c3ef1";
         String url = BASE_URL + user + "/events";
 
         JSONArray events = getEventPage(page, url);
@@ -93,7 +106,6 @@ public class GithubQuerier {
                     eventList.add(jObj);
                     numofPushEvents++;
                 }
-
             }
             page++;
             events = getEventPage(page, url);
@@ -107,7 +119,6 @@ public class GithubQuerier {
         String pushURL = String.format("%s?page=%s", baseURL, Integer.toString(pageNum));
         URL url = new URL(pushURL);
         JSONObject pushPage = Util.queryAPI(url);
-        JSONArray eventPageList = pushPage.getJSONArray("root");
-        return eventPageList;
+        return pushPage.getJSONArray("root");
     }
 }
